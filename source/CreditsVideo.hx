@@ -3,7 +3,11 @@ package;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.util.FlxColor;
-
+import openfl.utils.Assets as OpenFlAssets;
+#if sys
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 #if VIDEOS_ALLOWED
 #if (hxCodec >= "3.0.0")
@@ -29,7 +33,7 @@ class CreditsVideo extends FlxState
 	{
 
 		super.create();
-	        
+	        startVideo('credits');
 	
 	}
 
