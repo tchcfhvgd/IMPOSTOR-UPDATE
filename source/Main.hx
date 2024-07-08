@@ -8,11 +8,17 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
+import haxe.io.Path;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
+
+#if android
+import android.content.Context;
+import android.os.Build;
+#end
 
 class Main extends Sprite
 {
@@ -38,6 +44,16 @@ class Main extends Sprite
 	{
 		super();
 
+		
+		#if android
+		if (VERSION.SDK_INT > 30)
+			Sys.setCwd(Path.addTrailingSlash(Context.getObbDir()));
+		else
+			Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
+		#elseif ios
+		Sys.setCwd(System.documentsDirectory);
+		#end
+		
 		if (stage != null)
 		{
 			init();
@@ -107,7 +123,6 @@ class Main extends Sprite
 			trace(System.totalMemory);
 		});
 		
-		#if !mobile
 		fpsCounter = new FPS(10, 5, 0xFFFFFF);
 		addChild(fpsCounter);
 
@@ -115,13 +130,14 @@ class Main extends Sprite
 		if(fpsCounter != null) { 
 			fpsCounter.visible = ClientPrefs.showFPS;
 		}
-		#end
-
-		
 
 		#if html5
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
+		#end
+
+		#if android
+		FlxG.android.preventDefaultKeys = [BACK];
 		#end
 	}
 
