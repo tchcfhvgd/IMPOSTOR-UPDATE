@@ -26,7 +26,6 @@ using StringTools;
 
 class CreditsVideo extends FlxState
 {
-	var video:VideoHandler;
 	var titleState = new TitleState();
 
 	override public function create():Void
