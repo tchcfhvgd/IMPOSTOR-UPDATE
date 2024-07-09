@@ -43,16 +43,6 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
-
-		
-		#if android
-		if (VERSION.SDK_INT > 30)
-			Sys.setCwd(Path.addTrailingSlash(Context.getObbDir()));
-		else
-			Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
-		#elseif ios
-		Sys.setCwd(System.documentsDirectory);
-		#end
 		
 		if (stage != null)
 		{
@@ -77,6 +67,15 @@ class Main extends Sprite
 
 	private function setupGame():Void
 	{
+		#if android
+		if (VERSION.SDK_INT > 30)
+			Sys.setCwd(Path.addTrailingSlash(Context.getObbDir()));
+		else
+			Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
+		#elseif ios
+		Sys.setCwd(System.documentsDirectory);
+		#end
+		
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
 
@@ -134,10 +133,6 @@ class Main extends Sprite
 		#if html5
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
-		#end
-
-		#if android
-		FlxG.android.preventDefaultKeys = [BACK];
 		#end
 	}
 
