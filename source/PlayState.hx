@@ -4700,16 +4700,6 @@ class PlayState extends MusicBeatState
 		{
 			FlxG.log.warn('Couldnt find video file: ' + name);
 			startAndEnd();
-			else
-				{
-					if(piss == false) {
-                        trace('oh  nvm');
-                        schoolIntro(doof);
-                    }
-                    if(piss == true) {
-                        startCountdown();
-                    }
-				}
 			return;
 		}
 
@@ -4719,16 +4709,6 @@ class PlayState extends MusicBeatState
 		video.finishCallback = function()
 		{
 			startAndEnd();
-			else
-				{
-					if(piss == false) {
-                        trace('oh  nvm');
-                        schoolIntro(doof);
-                    }
-                    if(piss == true) {
-                        startCountdown();
-                    }
-				}
 			return;
 		}
 		#else
@@ -4736,22 +4716,20 @@ class PlayState extends MusicBeatState
 		video.onEndReached.add(function(){
 			video.dispose();
 			startAndEnd();
-			else
-				{
-					if(piss == false) {
-                        trace('oh  nvm');
-                        schoolIntro(doof);
-                    }
-                    if(piss == true) {
-                        startCountdown();
-                    }
-				}
 			return;
 		});
 		#end
 		#else
 		FlxG.log.warn('Platform not supported!');
 		startAndEnd();
+		return;
+		#end
+	}
+
+        function startAndEnd()
+	{
+		if(endingSong)
+			endSong();
 		else
 				{
 					if(piss == false) {
@@ -4762,8 +4740,6 @@ class PlayState extends MusicBeatState
                         startCountdown();
                     }
 				}
-		return;
-		#end
 	}
 
 	var dialogueCount:Int = 0;
