@@ -258,17 +258,16 @@ class HenryState extends MusicBeatState
         }
 	}
 
-        public function startVideo(name:String,funcToCall:Int):Void
+        public function startVideo(name:String,funcToCall:Int)
 	{
 		#if VIDEOS_ALLOWED
-		var finishCallback:Void->Void;
 		switch(funcToCall){
             case 0:
-                finishCallback = options; 
+                options(); 
             case 1:
-                finishCallback = dead; 
+                dead(); 
             case 2:
-                finishCallback = win;
+                win();
 		}
 			
 		var filepath:String = Paths.video(name);
@@ -279,7 +278,7 @@ class HenryState extends MusicBeatState
 		#end
 		{
 			FlxG.log.warn('Couldnt find video file: ' + name);
-			finishCallback();
+			funcToCall;
 			return;
 		}
 
@@ -288,20 +287,20 @@ class HenryState extends MusicBeatState
 		video.playVideo(filepath);
 		video.finishCallback = function()
 		{
-			finishCallback();
+			funcToCall;
 			return;
 		}
 		#else
 		video.play(filepath);
 		video.onEndReached.add(function(){
 			video.dispose();
-			finishCallback();
+			funcToCall;
 			return;
 		});
 		#end
 		#else
 		FlxG.log.warn('Platform not supported!');
-		finishCallback();
+		funcToCall;
 		return;
 		#end
 	}
