@@ -35,6 +35,18 @@ import sys.FileSystem;
 #end
 
 
+#if VIDEOS_ALLOWED
+#if (hxCodec >= "3.0.0")
+import hxcodec.flixel.FlxVideo as MP4Handler;
+#elseif (hxCodec == "2.6.1")
+import hxcodec.VideoHandler as MP4Handler;
+#elseif (hxCodec == "2.6.0")
+import VideoHandler as MP4Handler;
+#else
+import vlc.MP4Handler;
+#end
+#end
+
 using StringTools;
 
 class TitleState extends MusicBeatState
@@ -65,22 +77,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		#if (polymod && !html5)
-		if (sys.FileSystem.exists('mods/')) {
-			var folders:Array<String> = [];
-			for (file in sys.FileSystem.readDirectory('mods/')) {
-				var path = haxe.io.Path.join(['mods/', file]);
-				if (sys.FileSystem.isDirectory(path)) {
-					folders.push(file);
-				}
-			}
-			if(folders.length > 0) {
-				polymod.Polymod.init({modRoot: "mods", dirs: folders});
-			}
-		}
-
-		//Gonna finish this later, probably
-		#end
 		FlxG.game.focusLostFramerate = 60;
 		FlxG.sound.muteKeys = muteKeys;
 		FlxG.sound.volumeDownKeys = volumeDownKeys;
@@ -536,50 +532,47 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	public function startVideo(name:String):Void
+	public function startVideo(name:String)
 	{
-	#if VIDEOS_ALLOWED
-	var foundFile:Bool = false;
-	var fileName:String = #if MODS_ALLOWED Paths.modFolders('videos/' + name + '.' + Paths.VIDEO_EXT); #else ''; #end
-	#if sys
-	if (FileSystem.exists(fileName))
-	{
-		foundFile = true;
-	}
-	#end
-
-	if (!foundFile)
-	{
-		fileName = Paths.video(name);
+		#if VIDEOS_ALLOWED
+		var filepath:String = Paths.video(name);
 		#if sys
-		if (FileSystem.exists(fileName))
-		{
+		if(!FileSystem.exists(filepath))
 		#else
-		if (OpenFlAssets.exists(fileName))
-		{
+		if(!OpenFlAssets.exists(filepath))
 		#end
-			foundFile = true;
-		}
-		} if (foundFile)
 		{
-			var bg = new FlxSprite(-FlxG.width, -FlxG.height).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
-			bg.scrollFactor.set();
-			add(bg);
-
-			FlxG.autoPause = false;
-			(new FlxVideo(fileName)).finishCallback = function()
-			{
-				canPressEnter = true;
-				startIntro();
-				
-				FlxG.autoPause = true;
-			}
+			FlxG.log.warn('Couldnt find video file: ' + name);
+			startIntro();
+			canPressEnter = true;
 			return;
 		}
-		else
+
+		var video:MP4Handler = new MP4Handler();
+		#if (hxCodec < "3.0.0")
+		video.playVideo(filepath);
+		video.canSkip = false;
+		video.finishCallback = function()
 		{
-			FlxG.log.warn('Couldnt find video file: ' + fileName);
+			startIntro();
+			canPressEnter = true;
+			return;
 		}
+		#else
+		video.play(filepath);
+		video.canSkip = false;
+		video.onEndReached.add(function(){
+			video.dispose();
+			startIntro();
+			canPressEnter = true;
+			return;
+		});
+		#end
+		#else
+		FlxG.log.warn('Platform not supported!');
+		startIntro();
+		canPressEnter = true;
+		return;
 		#end
 	}
 
