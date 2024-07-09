@@ -22,6 +22,18 @@ using StringTools;
 import sys.FileSystem;
 #end
 
+#if VIDEOS_ALLOWED
+#if (hxCodec >= "3.0.0")
+import hxcodec.flixel.FlxVideo as MP4Handler;
+#elseif (hxCodec == "2.6.1")
+import hxcodec.VideoHandler as MP4Handler;
+#elseif (hxCodec == "2.6.0")
+import VideoHandler as MP4Handler;
+#else
+import vlc.MP4Handler;
+#end
+#end
+
 class HenryState extends MusicBeatState
 {
     
@@ -246,53 +258,51 @@ class HenryState extends MusicBeatState
         }
 	}
 
-    public function startVideo(name:String, funcToCall:Int):Void {
-
-        var finishCallback:Void->Void;
-
-        switch(funcToCall){
+        public function startVideo(name:String,funcToCall:Int):Void
+	{
+		#if VIDEOS_ALLOWED
+		var finishCallback:Void->Void;
+		switch(funcToCall){
             case 0:
                 finishCallback = options; 
             case 1:
                 finishCallback = dead; 
             case 2:
                 finishCallback = win;
-        }
-       
-        
-		#if VIDEOS_ALLOWED
-		var foundFile:Bool = false;
-		var fileName:String = #if MODS_ALLOWED Paths.modFolders('videos/' + name + '.' + Paths.VIDEO_EXT); #else ''; #end
+		}
+			
+		var filepath:String = Paths.video(name);
 		#if sys
-		if(FileSystem.exists(fileName)) {
-			foundFile = true;
-		}
+		if(!FileSystem.exists(filepath))
+		#else
+		if(!OpenFlAssets.exists(filepath))
 		#end
-
-		if(!foundFile) {
-			fileName = Paths.video(name);
-			#if sys
-			if(FileSystem.exists(fileName)) {
-			#else
-			if(OpenFlAssets.exists(fileName)) {
-			#end
-				foundFile = true;
-			}
-		}
-
-		if(foundFile) {
-			var bg = new FlxSprite(-FlxG.width, -FlxG.height).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
-			bg.scrollFactor.set();
-			add(bg);
-
-			(new FlxVideo(fileName)).finishCallback = function() {
-				remove(bg);
-                finishCallback();
-			}
+		{
+			FlxG.log.warn('Couldnt find video file: ' + name);
+			finishCallback();
 			return;
-		} else {
-			FlxG.log.warn('Couldnt find video file: ' + fileName);
 		}
+
+		var video:MP4Handler = new MP4Handler();
+		#if (hxCodec < "3.0.0")
+		video.playVideo(filepath);
+		video.finishCallback = function()
+		{
+			finishCallback();
+			return;
+		}
+		#else
+		video.play(filepath);
+		video.onEndReached.add(function(){
+			video.dispose();
+			finishCallback();
+			return;
+		});
+		#end
+		#else
+		FlxG.log.warn('Platform not supported!');
+		finishCallback();
+		return;
 		#end
 	}
 
