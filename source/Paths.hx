@@ -143,7 +143,7 @@ class Paths
 			return levelPath;
 
 		levelPath = getLibraryPathForce(file, "shared");
-		if (FileSystem.exists(levelPath))
+		if (OpenFlAssets.exists(levelPath))
 			return levelPath;
 
 		return getPreloadPath(file);
