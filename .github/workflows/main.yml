@@ -34,7 +34,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.2.4
+          haxe-version: 4.2.5
       
       - name: Restore Previous Cache
         id: cache-debug-build-android-restore
@@ -50,13 +50,13 @@ jobs:
       - name: Install Haxelib
         run: |
           haxelib setup ~/haxelib
-          haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp.git
-          haxelib git lime https://github.com/MobilePorting/lime-0.6.3.git
-          haxelib git openfl https://github.com/Prohack101010/openfl-0.6.3
-          haxelib install flixel 5.5.0
+          haxelib install hxcpp > /dev/null
+          haxelib install lime 7.9.0
+          haxelib install openfl 9.1.0
+          haxelib install flixel 4.11.0
           haxelib install flixel-tools
           haxelib install flixel-ui
-          haxelib install flixel-addons 3.2.1
+          haxelib install flixel-addons 2.11.0
           haxelib install tjson
           haxelib install hxjsonast
           haxelib install hscript
@@ -74,8 +74,8 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
           haxelib set hxCodec 2.6.1
-          haxelib set flixel 5.2.2
-          haxelib set flixel-addons 3.0.2
+          haxelib set flixel 4.11.0
+          haxelib set flixel-addons 2.11.0
       
       - name: Compile
         run: haxelib run lime build android
